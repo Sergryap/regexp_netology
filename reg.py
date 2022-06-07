@@ -7,22 +7,14 @@ with open("phonebook_raw.csv", encoding="utf-8") as f:
 	contacts_list = list(rows)
 
 count_ind = {}
-contacts_list_new = []
 for i, rew in enumerate(contacts_list[1:], start=1):
-	test_name = rew[0].split()
-	if len(test_name) > 1:
-		contacts_list[i][0] = test_name[0]
-		contacts_list[i][1] = test_name[1]
-	if len(test_name) == 3:
-		contacts_list[i][2] = test_name[2]
-	test_name = rew[1].split()
-	if len(test_name) > 1:
-		contacts_list[i][1] = test_name[0]
-		contacts_list[i][2] = test_name[1]
-
+	name = ' '.join(rew[:2]).split()
+	j = 0
+	while j < len(name):
+		contacts_list[i][j] = name[j]
+		j += 1
 	# составляем словарь {фамилия: [список из индексов с повторяющимися фамилиями]}
 	count_ind[contacts_list[i][0]] = count_ind.get(contacts_list[i][0], []) + [i]
-
 # создаем новый список без дублей:
 contacts_list_new = [contacts_list[0]].copy()
 
@@ -52,4 +44,4 @@ with open("phonebook.csv", "w", encoding="utf-8") as f:
 	datawriter = csv.writer(f, delimiter=',')
 	datawriter.writerows(contacts_list_new)
 
-pprint(contacts_list_new)
+print(contacts_list_new)
