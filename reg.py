@@ -4,12 +4,14 @@ import re
 
 
 def reading_session(file_csv: str):
+	"""Открытие файла и создание списка"""
 	with open(file_csv, encoding="utf-8") as f:
 		rows = csv.reader(f, delimiter=",")
 		return list(rows)
 
 
 def name_disposal(book_csv: list):
+	"""Расстановка ФИО по своим местам"""
 	for i, rew in enumerate(book_csv[1:], start=1):
 		name = ' '.join(rew[:2]).split()
 		j = 0
@@ -20,6 +22,7 @@ def name_disposal(book_csv: list):
 
 
 def merging_duplicates(book_csv: list):
+	"""Слияние дубликатов записей"""
 	count_ind = {}
 	for i, rew in enumerate(book_csv[1:], start=1):
 		# составляем словарь {фамилия: [список из индексов с повторяющимися фамилиями]}
@@ -44,6 +47,7 @@ def merging_duplicates(book_csv: list):
 
 
 def phone_normalization(book_csv: list):
+	"""Форматирование записей телефонов"""
 	for i, rew in enumerate(book_csv[1:], start=1):
 		tel = rew[-2]
 		pattern = re.compile(r'[7|8]\s*\(?(\d{,3})\)?\s*-?(\d{,3})-?(\d{,2})-?(\d{,2})\s*\(?(?:\bдоб\b\.?)?\s*(\d*)')
@@ -55,6 +59,7 @@ def phone_normalization(book_csv: list):
 
 
 def writing_to_book_csv(file_csv: str, book_csv: list):
+	"""Запись результатов в файл csv"""
 	with open(file_csv, "w", encoding="utf-8") as f:
 		datawriter = csv.writer(f, delimiter=',')
 		datawriter.writerows(book_csv)
