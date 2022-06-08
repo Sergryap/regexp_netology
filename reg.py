@@ -60,11 +60,43 @@ def phone_normalizer(book_csv: list):
 
 def phone_normalizer_v1(book_csv: list):
 	"""Форматирование записей телефонов. Альтернативный вариант"""
+	def u(d: list):
+		return "".join(d)
+
 	for i, rew in enumerate(book_csv[1:], start=1):
 		tel = rew[-2]
 		s = re.findall(r'\d', tel)
-		tel_delta = f' доб.{"".join(s[-4:])}' if len(s) > 11 else ""
-		tel_format = f'+7({"".join(s[1:4])}){"".join(s[4:7])}-{"".join(s[7:9])}-{"".join(s[9:11])}{tel_delta}'
+		tel_delta = f' доб.{u(s[-4:])}' if len(s) > 11 else ""
+		tel_format = f'+7({u(s[1:4])}){u(s[4:7])}-{u(s[7:9])}-{u(s[9:11])}{tel_delta}'
+		book_csv[i][-2] = tel_format
+	return book_csv
+
+
+def phone_normalizer_v2(book_csv: list, f='+7(xxx)xxx-xx-xx доб.хххх'):
+	"""
+	Форматирование записей телефонов.
+	Альтернативный вариант с указанием требуемого шаблона
+	записи телефона через параметр f
+	"""
+
+	for i, rew in enumerate(book_csv[1:], start=1):
+		tel = rew[-2]
+		s = re.findall(r'\d', tel)
+
+		tel_format = ""
+		n = 1
+		j = 0
+		end_f = re.match(r'[^xXхХ]*', f[::-1])
+		while n < len(s) + len(end_f.group()):
+			if f[j] in re.findall(r'[^xXхХ]', f):
+				tel_format += f[j]
+				if n >= len(s):
+					n += 1
+			else:
+				tel_format += s[n]
+				n += 1
+			j += 1
+
 		book_csv[i][-2] = tel_format
 	return book_csv
 
@@ -81,7 +113,7 @@ if __name__ == '__main__':
 	contacts_list = reading_session("phonebook_raw.csv")
 	contacts_list = name_disposal(contacts_list)
 	contacts_list_new = merging_duplicates(contacts_list)
-	contacts_list_new = phone_normalizer(contacts_list_new)
-	# contacts_list_new = phone_normalizer_v1(contacts_list_new)
+	# contacts_list_new = phone_normalizer(contacts_list_new)
+	contacts_list_new = phone_normalizer_v2(contacts_list_new, f='+7(хxx)xхx-xx-xx доб.xxxx')
 	writing_to_book_csv("phonebook.csv", contacts_list_new)
 	print(contacts_list_new)
