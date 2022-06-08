@@ -81,7 +81,7 @@ if __name__ == '__main__':
 	contacts_list = reading_session("phonebook_raw.csv")
 	contacts_list = name_disposal(contacts_list)
 	contacts_list_new = merging_duplicates(contacts_list)
-	contacts_list = phone_normalizer(contacts_list_new)
+	contacts_list_new = phone_normalizer(contacts_list_new)
 	# contacts_list_new = phone_normalizer_v1(contacts_list_new)
 	writing_to_book_csv("phonebook.csv", contacts_list_new)
 	print(contacts_list_new)
