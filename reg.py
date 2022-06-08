@@ -46,14 +46,25 @@ def merging_duplicates(book_csv: list):
 	return book_csv_new
 
 
-def phone_normalization(book_csv: list):
+def phone_normalizer(book_csv: list):
 	"""Форматирование записей телефонов"""
+	pattern = re.compile(r'[78]\s*\(?(\d{,3})\)?\s*-?(\d{,3})-?(\d{,2})-?(\d{,2})\s*\(?(?:\bдоб\b\.?)?\s*(\d*)')
 	for i, rew in enumerate(book_csv[1:], start=1):
 		tel = rew[-2]
-		pattern = re.compile(r'[7|8]\s*\(?(\d{,3})\)?\s*-?(\d{,3})-?(\d{,2})-?(\d{,2})\s*\(?(?:\bдоб\b\.?)?\s*(\d*)')
 		res = pattern.search(tel)
 		tel_delta = f' доб.{res.group(5)}' if res.group(5) else ""
 		tel_format = f'+7({res.group(1)}){res.group(2)}-{res.group(3)}-{res.group(4)}{tel_delta}'
+		book_csv[i][-2] = tel_format
+	return book_csv
+
+
+def phone_normalizer_v1(book_csv: list):
+	"""Форматирование записей телефонов. Альтернативный вариант"""
+	for i, rew in enumerate(book_csv[1:], start=1):
+		tel = rew[-2]
+		s = re.findall(r'\d', tel)
+		tel_delta = f' доб.{"".join(s[-4:])}' if len(s) > 11 else ""
+		tel_format = f'+7({"".join(s[1:4])}){"".join(s[4:7])}-{"".join(s[7:9])}-{"".join(s[9:11])}{tel_delta}'
 		book_csv[i][-2] = tel_format
 	return book_csv
 
@@ -66,10 +77,11 @@ def writing_to_book_csv(file_csv: str, book_csv: list):
 
 
 if __name__ == '__main__':
+
 	contacts_list = reading_session("phonebook_raw.csv")
 	contacts_list = name_disposal(contacts_list)
 	contacts_list_new = merging_duplicates(contacts_list)
-	contacts_list_new = phone_normalization(contacts_list_new)
+	contacts_list = phone_normalizer(contacts_list_new)
+	# contacts_list_new = phone_normalizer_v1(contacts_list_new)
 	writing_to_book_csv("phonebook.csv", contacts_list_new)
-
 	print(contacts_list_new)
